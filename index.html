@@ -26,6 +26,7 @@
         .thesis-nav{position:absolute;top:50%;left:12px;transform:translateY(-50%);z-index:40}
         .thesis-nav.right{left:auto;right:12px}
         .thesis-btn{background:rgba(255,255,255,0.9);border:1px solid #111;padding:8px 12px;cursor:pointer}
+        .back-to-top{position:fixed;right:16px;bottom:20px;z-index:60;border-radius:6px}
         /* Responsive: on small screens make pages stack and allow scrolling */
         @media (max-width: 768px){
             .book{width:100%;height:auto;max-height:none;padding:24px}
@@ -114,6 +115,7 @@
         let thesisDoc = null;
         let thesisNumPages = 0;
         let currentSpreadStart = 1; // 1 = cover, then 2,4,6...
+        let mobileObserver = null;
 
         // Prevent common save/print/download shortcuts globally
         document.addEventListener('keydown', (e) => {
@@ -127,6 +129,23 @@
                 e.stopPropagation();
             }
         }, {capture:true});
+
+        // Keyboard navigation for thesis (left/right arrows) and Home for back-to-top
+        document.addEventListener('keydown', (e) => {
+            const thesisVisible = !document.getElementById('thesis-book').classList.contains('hidden');
+            if (!thesisVisible) return;
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                document.getElementById('thesis-prev').click();
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                document.getElementById('thesis-next').click();
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                const root = document.getElementById('thesis-book');
+                root.scrollTo({top:0,behavior:'smooth'});
+            }
+        });
 
         // Disable context menu on critical viewer areas (body already blocks right click)
         document.getElementById('pdf-container').addEventListener('contextmenu', (e) => e.preventDefault());
@@ -156,6 +175,13 @@
 
             // Restore page-level scrolling to original (prevent body scrolling while iframe handles its own scroll)
             document.body.style.overflow = 'hidden';
+
+            // Cleanup any mobile observer/back-to-top when leaving thesis
+            if (mobileObserver) { try { mobileObserver.disconnect(); } catch(e){} mobileObserver = null; }
+            const btt = document.getElementById('back-to-top'); if (btt) btt.remove();
+            // ensure nav shown is consistent for desktop
+            document.getElementById('thesis-prev').style.display = '';
+            document.getElementById('thesis-next').style.display = '';
 
             try {
                 if (portfolioBlobUrl) {
@@ -189,10 +215,10 @@
                 const loadingTask = pdfjsLib.getDocument({data: arrayBuffer});
                 thesisDoc = await loadingTask.promise;
                 thesisNumPages = thesisDoc.numPages;
-                // If on mobile, render single-column stacked pages for scrolling
+                // If on mobile, render single-column stacked pages lazily for scrolling
                 if (isMobile()) {
                     document.body.style.overflow = 'auto';
-                    renderMobileDocument();
+                    renderMobileLazy();
                 } else {
                     document.body.style.overflow = 'hidden';
                     renderSpread(currentSpreadStart);
@@ -206,25 +232,67 @@
             return window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
         }
 
-        // Render entire document as a single-column stack for mobile scrolling
-        async function renderMobileDocument(){
+        function createBackToTop(){
+            if (document.getElementById('back-to-top')) return;
+            const btn = document.createElement('button');
+            btn.id = 'back-to-top';
+            btn.className = 'back-to-top thesis-btn';
+            btn.textContent = 'Top';
+            btn.onclick = () => {
+                const root = document.getElementById('thesis-book');
+                if (root) root.scrollTo({top:0,behavior:'smooth'});
+            };
+            document.body.appendChild(btn);
+        }
+
+        // Lazy render mobile: create placeholders and render when pages approach viewport
+        function renderMobileLazy(){
             const spread = document.getElementById('book-spread');
             spread.classList.remove('flip-anim');
             spread.innerHTML = '';
-            // render pages sequentially (cover first)
+
+            // create container elements with canvases but defer rendering until visible
             for (let p = 1; p <= thesisNumPages; p++){
                 const pageEl = document.createElement('div');
                 pageEl.className = (p === 1) ? 'page cover single' : 'page normal';
+                pageEl.dataset.page = p;
+                pageEl.style.minHeight = '200px';
                 const canvas = document.createElement('canvas');
+                canvas.dataset.rendered = 'false';
+                // Ensure canvas fills container width when rendered
+                canvas.style.width = '100%';
+                canvas.style.height = 'auto';
                 pageEl.appendChild(canvas);
                 spread.appendChild(pageEl);
-                // render but don't await all at once to make first pages visible sooner
-                // await each page to keep order
-                try{ await renderPageToCanvas(p, canvas, {cover: p===1}); }catch(e){console.warn('render page failed',p,e)}
             }
-            // ensure nav is hidden on mobile
+
+            // hide flip nav on mobile
             document.getElementById('thesis-prev').style.display = 'none';
             document.getElementById('thesis-next').style.display = 'none';
+
+            // create back-to-top button
+            createBackToTop();
+
+            // IntersectionObserver to render pages when they come near viewport
+            if (mobileObserver) { try { mobileObserver.disconnect(); } catch(e){} }
+            mobileObserver = new IntersectionObserver(async (entries, obs) => {
+                for (const entry of entries) {
+                    if (entry.isIntersecting) {
+                        const el = entry.target;
+                        const canvas = el.querySelector('canvas');
+                        const pageNum = parseInt(el.dataset.page,10);
+                        if (canvas && canvas.dataset.rendered === 'false'){
+                            canvas.dataset.rendered = 'true';
+                            try{ await renderPageToCanvas(pageNum, canvas, {cover: pageNum===1}); }catch(e){console.warn('mobile render fail',pageNum,e)}
+                        }
+                        // optionally unobserve after render to save cycles
+                        obs.unobserve(el);
+                    }
+                }
+            }, {root:null,rootMargin:'400px',threshold:0.05});
+
+            // observe each page element
+            document.querySelectorAll('#book-spread > div').forEach(el => mobileObserver.observe(el));
         }
 
         // Render a spread starting at page "start" (1 = cover)
@@ -288,19 +356,31 @@
             const page = await thesisDoc.getPage(pageNum);
             const viewport = page.getViewport({scale:1});
 
-            // Choose scale so that page height fits the book area
-            const bookRoot = document.getElementById('book-root');
-            const maxHeight = Math.min(bookRoot.clientHeight * 0.95, 1200);
-            const scale = (maxHeight / viewport.height) * window.devicePixelRatio * 0.95;
+            // Determine desired CSS width based on parent container (works for mobile and desktop)
+            const parent = canvas.parentElement || document.body;
+            let containerWidth = parent.clientWidth || Math.min(window.innerWidth, 1200);
+            // Slight padding safety
+            containerWidth = Math.max(200, containerWidth * 0.95);
+
+            const DPR = window.devicePixelRatio || 1;
+            // Compute pdf.js scale so that canvas pixel width = desired CSS width * DPR
+            const scale = (containerWidth * DPR) / viewport.width;
             const scaledViewport = page.getViewport({scale});
 
+            // Set canvas backing store size (physical pixels)
             canvas.width = Math.floor(scaledViewport.width);
             canvas.height = Math.floor(scaledViewport.height);
+            // Set CSS size (logical pixels) so layout fits container
+            canvas.style.width = Math.floor(containerWidth) + 'px';
+            canvas.style.height = Math.floor(scaledViewport.height / DPR) + 'px';
+
             const ctx = canvas.getContext('2d');
+            ctx.save();
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0,0,canvas.width,canvas.height);
 
             await page.render({canvasContext: ctx, viewport: scaledViewport}).promise;
+            ctx.restore();
         }
 
         function setupThesisNav(){
