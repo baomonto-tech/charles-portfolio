@@ -11,16 +11,6 @@
             font-family: 'Inter', sans-serif;
             ::selection { background-color: black; color: white; }
         }
-        
-        /* Custom Animation for Page Flipping */
-        @keyframes pageTurn {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0; transform: scale(0.98) translateY(10px); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        .page-turning {
-            animation: pageTurn 0.5s ease-in-out;
-        }
     </style>
 </head>
 <!-- Block right click and text highlighting to protect your work -->
@@ -57,183 +47,38 @@
         </div>
     </header>
 
-    <!-- Main Content - Custom E-Book Reader -->
+    <!-- Main Content - PDF Viewer Area -->
     <main class="flex-grow flex flex-col bg-[#525659] overflow-hidden">
         
-        <!-- E-Book Display Area (Moved above the toolbar) -->
-        <div id="book-container" class="w-full flex-grow relative flex items-center justify-center p-4 md:p-10 overflow-hidden">
-            <!-- Loading Spinner -->
-            <div id="loading-indicator" class="absolute inset-0 flex flex-col items-center justify-center bg-[#525659] z-50">
-                <div class="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin mb-3"></div>
-                <p class="text-white text-xs tracking-widest uppercase animate-pulse">Rendering Pages...</p>
-            </div>
+        <div id="pdf-container" class="w-full flex-grow relative flex items-center justify-center overflow-hidden">
+            <iframe 
+                id="pdf-viewer"
+                src="portfolio.pdf#view=Fit&toolbar=0&navpanes=0&scrollbar=0" 
+                class="absolute top-0 left-0 w-full h-full border-none z-20 bg-[#525659]"
+                title="Charles To - Architecture Portfolio"
+            ></iframe>
 
-            <!-- Canvas Wrapper (This is what animates) -->
-            <div id="book-wrapper" class="flex flex-row shadow-[0_15px_40px_rgba(0,0,0,0.6)] transition-transform duration-300">
-                <!-- Left Page -->
-                <canvas id="page-left" class="bg-white h-[55vh] md:h-[66vh] object-contain border-r border-gray-300"></canvas>
-                <!-- Right Page -->
-                <canvas id="page-right" class="bg-white h-[55vh] md:h-[66vh] object-contain"></canvas>
-            </div>
-        </div>
-
-        <!-- Book Navigation Toolbar (Moved to Bottom, Centered, and Smaller) -->
-        <div class="w-full bg-[#2a2c2e] flex items-center justify-center gap-8 md:gap-16 px-4 py-2 md:py-3 text-white shadow-[0_-10px_20px_rgba(0,0,0,0.2)] z-30 shrink-0">
-            <button id="prev-page" class="flex items-center gap-1 hover:text-gray-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-[10px] md:text-xs font-semibold tracking-widest uppercase">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
-                <span class="hidden md:inline">Prev</span>
-            </button>
-            
-            <div id="page-num" class="text-[10px] md:text-xs font-semibold tracking-widest uppercase w-24 text-center">Loading...</div>
-            
-            <button id="next-page" class="flex items-center gap-1 hover:text-gray-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-[10px] md:text-xs font-semibold tracking-widest uppercase">
-                <span class="hidden md:inline">Next</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
-            </button>
         </div>
     </main>
 
-    <!-- PDF.js Library via CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-
-    <!-- Custom E-Book Logic -->
+    <!-- Script to handle PDF switching -->
     <script>
-        // Setup PDF.js Engine
-        const pdfjsLib = window['pdfjs-dist/build/pdf'];
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-
-        let currentPdf = null;
-        let currentSpread = 0;
-        let isRendering = false;
-
-        async function loadBook(url) {
-            document.getElementById('loading-indicator').style.display = 'flex';
-            try {
-                // Prevent URL parsing errors in blob environments (like the chatbox preview)
-                if (window.location.protocol === 'blob:' && !url.startsWith('http')) {
-                    throw new Error("Preview Environment: Local PDFs cannot be loaded.");
-                }
-
-                const loadingTask = pdfjsLib.getDocument({ url: String(url) });
-                currentPdf = await loadingTask.promise;
-                currentSpread = 0; // Reset to the cover page
-                await renderSpread(currentSpread);
-            } catch (error) {
-                console.warn("PDF Load Notice:", error);
-                document.getElementById('loading-indicator').style.display = 'none';
-                
-                // Draw a fallback message on the canvas for the preview environment
-                const canvasLeft = document.getElementById('page-left');
-                const canvasRight = document.getElementById('page-right');
-                
-                [canvasLeft, canvasRight].forEach(canvas => {
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = 600; 
-                    canvas.height = 800;
-                    ctx.fillStyle = "#ffffff"; 
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.fillStyle = "#000000"; 
-                    ctx.font = "bold 24px Inter, sans-serif"; 
-                    ctx.textAlign = "center";
-                    ctx.fillText("Preview Environment", canvas.width/2, canvas.height/2 - 20);
-                    ctx.font = "14px Inter, sans-serif"; 
-                    ctx.fillStyle = "#666666";
-                    ctx.fillText(`Looking for: ${url}`, canvas.width/2, canvas.height/2 + 20);
-                    ctx.fillText("This will load perfectly on your live Vercel site!", canvas.width/2, canvas.height/2 + 50);
-                });
-                
-                document.getElementById('page-num').innerText = "Viewer Ready";
-            }
-        }
-
-        async function renderSpread(spreadIndex) {
-            if (isRendering || !currentPdf) return;
-            isRendering = true;
-            
-            const totalPages = currentPdf.numPages;
-            const totalSpreads = Math.ceil((totalPages + 1) / 2);
-            
-            // Standard Book Layout: Page 1 is cover (Right). Left is empty.
-            const leftNum = spreadIndex * 2;
-            const rightNum = spreadIndex * 2 + 1;
-            
-            const canvasLeft = document.getElementById('page-left');
-            const canvasRight = document.getElementById('page-right');
-            const ctxLeft = canvasLeft.getContext('2d');
-            const ctxRight = canvasRight.getContext('2d');
-            
-            // Get standard dimensions from Page 1 to handle the blank page perfectly
-            const coverPage = await currentPdf.getPage(1);
-            const standardViewport = coverPage.getViewport({ scale: 2.0 }); // High-Res Scale
-            
-            const renderSinglePage = async (num, canvas, ctx) => {
-                if (num < 1 || num > totalPages) {
-                    // Render a blank white page if it's the inside of the front cover
-                    canvas.height = standardViewport.height;
-                    canvas.width = standardViewport.width;
-                    ctx.fillStyle = "#ffffff";
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    return;
-                }
-                const page = await currentPdf.getPage(num);
-                const viewport = page.getViewport({ scale: 2.0 });
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-                await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-            };
-
-            // Render both the left and right pages simultaneously
-            await Promise.all([
-                renderSinglePage(leftNum, canvasLeft, ctxLeft),
-                renderSinglePage(rightNum, canvasRight, ctxRight)
-            ]);
-
-            // Update Header Text and Buttons
-            const spreadText = spreadIndex === 0 ? "Cover" : `Spread ${spreadIndex} of ${totalSpreads - 1}`;
-            document.getElementById('page-num').innerText = spreadText;
-            
-            document.getElementById('prev-page').disabled = spreadIndex <= 0;
-            document.getElementById('next-page').disabled = spreadIndex >= totalSpreads - 1;
-
-            document.getElementById('loading-indicator').style.display = 'none';
-            isRendering = false;
-        }
-
-        function flipSpread(direction) {
-            if (isRendering) return;
-            const wrapper = document.getElementById('book-wrapper');
-            
-            // Trigger CSS Page Turn Animation
-            wrapper.classList.remove('page-turning');
-            void wrapper.offsetWidth; // Force a quick reset
-            wrapper.classList.add('page-turning');
-            
-            // Swap the pages exactly halfway through the animation (when opacity is 0)
-            setTimeout(() => {
-                currentSpread += direction;
-                renderSpread(currentSpread);
-            }, 250); 
-        }
-
-        document.getElementById('prev-page').addEventListener('click', () => flipSpread(-1));
-        document.getElementById('next-page').addEventListener('click', () => flipSpread(1));
-
         function switchPDF(pdfFile, activeBtnId) {
+            // 1. Re-create the iframe entirely to force the browser's PDF viewer to restart cleanly
+            const container = document.getElementById('pdf-container');
+            container.innerHTML = '<iframe id="pdf-viewer" src="' + pdfFile + '#view=Fit&toolbar=0&navpanes=0&scrollbar=0" class="absolute top-0 left-0 w-full h-full border-none z-20 bg-[#525659]" title="Charles To - Portfolio"></iframe>';
+            
+            // 2. Define the styling for active (black) and inactive (white) buttons
             const activeClass = "bg-black text-white px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer";
             const inactiveClass = "bg-white text-black hover:bg-gray-100 px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer";
             
+            // 3. Reset both buttons to the inactive styling
             document.getElementById('nav-portfolio').className = inactiveClass;
             document.getElementById('nav-thesis').className = inactiveClass;
-            document.getElementById(activeBtnId).className = activeClass;
             
-            // Send the new file to the custom reader
-            loadBook(pdfFile);
+            // 4. Apply the active styling to the button that was just clicked
+            document.getElementById(activeBtnId).className = activeClass;
         }
-
-        // Start loading the main portfolio the second the website opens
-        window.addEventListener('DOMContentLoaded', () => {
-            loadBook('portfolio.pdf');
-        });
     </script>
 </body>
 </html>
