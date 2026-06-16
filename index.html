@@ -40,38 +40,18 @@
     </header>
 
     <!-- Main Content - PDF Viewer Area -->
-    <main class="flex-grow flex flex-col bg-[#f4f4f4] md:bg-[#525659] overflow-hidden relative">
+    <main class="flex-grow flex flex-col bg-[#f4f4f4] overflow-hidden relative">
         
-        <!-- Loading Animation (Adapts color for dark desktop background) -->
-        <div class="absolute inset-0 flex flex-col items-center justify-center z-0">
-            <svg class="animate-spin h-8 w-8 mb-4 text-black md:text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <div class="absolute inset-0 flex flex-col items-center justify-center z-0 text-gray-400">
+            <svg class="animate-spin h-8 w-8 mb-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <p class="text-sm font-semibold tracking-[0.2em] uppercase animate-pulse text-black md:text-white">Loading Portfolio...</p>
+            <p class="text-sm font-semibold tracking-[0.2em] uppercase animate-pulse">Loading Portfolio...</p>
         </div>
 
-        <!-- PDF Container: Full width on mobile, centered & boxed on desktop -->
-        <div class="w-full flex-grow relative flex items-center justify-center overflow-hidden z-10 md:py-8 md:px-12">
+        <div class="w-full flex-grow relative flex items-center justify-center overflow-hidden z-10">
             
-            <div class="w-full h-full md:max-w-[1200px] mx-auto md:shadow-2xl bg-white transition-all duration-300">
-                <object 
-                    data="portfolio.pdf#view=Fit&toolbar=0&navpanes=0&scrollbar=0" 
-                    type="application/pdf" 
-                    class="w-full h-full"
-                    title="Portfolio PDF Viewer">
-                    
-                    <div class="flex flex-col items-center justify-center h-full p-8 text-center bg-[#f4f4f4]">
-                        <p class="text-lg font-semibold mb-4 text-black">Your browser does not support embedded PDFs.</p>
-                        <a href="portfolio.pdf" target="_blank" class="px-6 py-3 bg-black text-white font-semibold rounded hover:bg-gray-800 transition-colors">
-                            Download Portfolio to View
-                        </a>
-                    </div>
-                </object>
-            </div>
-
-        </div>
-    </main>
-
-</body>
+            <object 
+                data="portfolio.pdf#view=FitH&toolbar=0&navpanes=0&scrollbar=0" 
 </html>
