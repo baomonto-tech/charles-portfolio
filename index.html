@@ -36,19 +36,10 @@
         </div>
     </header>
 
-    <!-- Main Content - PDF Viewer Area with Persistent Failsafe -->
+    <!-- Main Content - PDF Viewer Area -->
     <main class="flex-grow flex flex-col bg-[#f4f4f4] overflow-hidden">
         
-        <!-- Persistent Failsafe Bar (Always visible) -->
-        <div class="w-full bg-black text-white p-3 flex justify-between items-center text-xs md:text-sm tracking-widest uppercase font-semibold z-30 shrink-0">
-            <span class="hidden md:inline text-gray-300">Viewing: Architecture Portfolio</span>
-            <span class="md:hidden text-gray-300">Portfolio Viewer</span>
-            <a href="portfolio.pdf" target="_blank" class="border border-white px-4 py-1.5 hover:bg-white hover:text-black transition-colors duration-200">
-                Open in New Tab &#8599;
-            </a>
-        </div>
-
-        <div class="w-full flex-grow relative border-t-2 border-black flex items-center justify-center overflow-hidden">
+        <div class="w-full flex-grow relative flex items-center justify-center overflow-hidden">
             
             <iframe 
                 src="portfolio.pdf#view=FitH&toolbar=0&navpanes=0&scrollbar=0" 
