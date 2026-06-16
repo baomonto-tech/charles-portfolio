@@ -36,27 +36,25 @@
         </div>
     </header>
 
-    <!-- Main Content - PDF Viewer Area -->
-    <main class="flex-grow p-4 md:p-6 flex flex-col bg-white overflow-hidden">
-        <div class="w-full h-full border-2 border-black bg-[#f4f4f4] relative flex items-center justify-center overflow-hidden">
+    <!-- Main Content - PDF Viewer Area with Persistent Failsafe -->
+    <main class="flex-grow flex flex-col bg-[#f4f4f4] overflow-hidden">
+        
+        <!-- Persistent Failsafe Bar (Always visible) -->
+        <div class="w-full bg-black text-white p-3 flex justify-between items-center text-xs md:text-sm tracking-widest uppercase font-semibold z-30 shrink-0">
+            <span class="hidden md:inline text-gray-300">Viewing: Architecture Portfolio</span>
+            <span class="md:hidden text-gray-300">Portfolio Viewer</span>
+            <a href="portfolio.pdf" target="_blank" class="border border-white px-4 py-1.5 hover:bg-white hover:text-black transition-colors duration-200">
+                Open in New Tab &#8599;
+            </a>
+        </div>
+
+        <div class="w-full flex-grow relative border-t-2 border-black flex items-center justify-center overflow-hidden">
             
-            <!-- Bulletproof PDF Object with Fallback -->
-            <object 
-                data="portfolio.pdf#view=FitH&toolbar=0&navpanes=0&scrollbar=0" 
-                type="application/pdf" 
-                class="absolute top-0 left-0 w-full h-full z-20"
+            <iframe 
+                src="portfolio.pdf#view=FitH&toolbar=0&navpanes=0&scrollbar=0" 
+                class="absolute top-0 left-0 w-full h-full border-none z-20 bg-[#f4f4f4]"
                 title="Charles To - Architecture Portfolio"
-            >
-                <!-- This fallback shows up ONLY if the browser blocks the PDF -->
-                <div class="flex flex-col items-center justify-center h-full w-full bg-[#f4f4f4] p-6 text-center z-30 relative">
-                    <p class="text-sm font-semibold uppercase tracking-widest mb-4">
-                        Your browser is blocking the PDF viewer.
-                    </p>
-                    <a href="portfolio.pdf" target="_blank" class="px-6 py-3 border-2 border-black hover:bg-black hover:text-white transition-colors uppercase font-bold text-sm tracking-widest">
-                        Open Portfolio in New Tab
-                    </a>
-                </div>
-            </object>
+            ></iframe>
 
         </div>
     </main>
