@@ -34,19 +34,25 @@
                 +852 51616760
             </a>
             
-            <!-- NEW: Thesis Project Button -->
-            <a href="thesis.pdf" target="_blank" rel="noopener noreferrer" class="mt-3 bg-black text-white hover:bg-gray-800 transition-colors duration-200 px-4 py-2 inline-block w-max md:w-auto md:ml-auto border border-black shadow-sm">
-                Thesis Project ↗
-            </a>
+            <!-- Navigation Toggles -->
+            <div class="mt-4 flex flex-row space-x-2 md:ml-auto w-max md:w-auto">
+                <button id="nav-portfolio" onclick="switchPDF('portfolio.pdf', 'nav-portfolio')" class="bg-black text-white px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer">
+                    Main Portfolio
+                </button>
+                <button id="nav-thesis" onclick="switchPDF('thesis.pdf', 'nav-thesis')" class="bg-white text-black hover:bg-gray-100 px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer">
+                    Thesis Project
+                </button>
+            </div>
         </div>
     </header>
 
     <!-- Main Content - PDF Viewer Area -->
     <main class="flex-grow flex flex-col bg-[#f4f4f4] overflow-hidden">
         
-        <div class="w-full flex-grow relative flex items-center justify-center overflow-hidden">
+        <div id="pdf-container" class="w-full flex-grow relative flex items-center justify-center overflow-hidden">
             
             <iframe 
+                id="pdf-viewer"
                 src="portfolio.pdf#view=FitH&toolbar=0&navpanes=0&scrollbar=0" 
                 class="absolute top-0 left-0 w-full h-full border-none z-20 bg-[#f4f4f4]"
                 title="Charles To - Architecture Portfolio"
@@ -55,5 +61,24 @@
         </div>
     </main>
 
+    <!-- Script to handle PDF switching -->
+    <script>
+        function switchPDF(pdfFile, activeBtnId) {
+            // 1. Re-create the iframe entirely to force the browser's PDF viewer to restart cleanly
+            const container = document.getElementById('pdf-container');
+            container.innerHTML = '<iframe id="pdf-viewer" src="' + pdfFile + '#view=FitH&toolbar=0&navpanes=0&scrollbar=0" class="absolute top-0 left-0 w-full h-full border-none z-20 bg-[#f4f4f4]" title="Charles To - Portfolio"></iframe>';
+            
+            // 2. Define the styling for active (black) and inactive (white) buttons
+            const activeClass = "bg-black text-white px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer";
+            const inactiveClass = "bg-white text-black hover:bg-gray-100 px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer";
+            
+            // 3. Reset both buttons to the inactive styling
+            document.getElementById('nav-portfolio').className = inactiveClass;
+            document.getElementById('nav-thesis').className = inactiveClass;
+            
+            // 4. Apply the active styling to the button that was just clicked
+            document.getElementById(activeBtnId).className = activeClass;
+        }
+    </script>
 </body>
 </html>
