@@ -27,9 +27,6 @@
         </div>
         
         <div class="mt-6 md:mt-0 text-left md:text-right text-xs md:text-sm font-semibold uppercase tracking-widest flex flex-col space-y-2">
-            <a href="https://linkedin.com/in/yourprofile" target="_blank" class="hover:bg-black hover:text-white transition-colors duration-200 px-2 py-1 -mx-2 inline-block w-max md:w-auto md:ml-auto">
-                LinkedIn
-            </a>
             <a href="mailto:charleswrtsy@gmail.com" class="hover:bg-black hover:text-white transition-colors duration-200 px-2 py-1 -mx-2 inline-block w-max md:w-auto md:ml-auto">
                 charleswrtsy@gmail.com
             </a>
@@ -40,18 +37,18 @@
     </header>
 
     <!-- Main Content - PDF Viewer Area -->
-    <main class="flex-grow flex flex-col bg-[#f4f4f4] overflow-hidden relative">
+    <main class="flex-grow flex flex-col bg-[#f4f4f4] overflow-hidden">
         
-        <div class="absolute inset-0 flex flex-col items-center justify-center z-0 text-gray-400">
-            <svg class="animate-spin h-8 w-8 mb-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <p class="text-sm font-semibold tracking-[0.2em] uppercase animate-pulse">Loading Portfolio...</p>
-        </div>
-
-        <div class="w-full flex-grow relative flex items-center justify-center overflow-hidden z-10">
+        <div class="w-full flex-grow relative flex items-center justify-center overflow-hidden">
             
-            <object 
-                data="portfolio.pdf#view=FitH&toolbar=0&navpanes=0&scrollbar=0" 
+            <iframe 
+                src="portfolio.pdf#view=FitH&toolbar=0&navpanes=0&scrollbar=0" 
+                class="absolute top-0 left-0 w-full h-full border-none z-20 bg-[#f4f4f4]"
+                title="Charles To - Architecture Portfolio"
+            ></iframe>
+
+        </div>
+    </main>
+
+</body>
 </html>
