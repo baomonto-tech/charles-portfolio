@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charles To - Architecture Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            ::selection { background-color: black; color: white; }
+        }
+        
+        /* Ensures smooth scrolling if content overflows */
+        .scroll-touch {
+            -webkit-overflow-scrolling: touch;
+        }
+    </style>
+</head>
+<!-- Changed to h-[100dvh] for better mobile browser support with address bars -->
+<body class="h-[100dvh] bg-white text-black flex flex-col m-0 overflow-hidden">
+
+    <!-- Header Section -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center p-6 border-b-2 border-black bg-white z-20 shrink-0">
+        <div>
+            <h1 class="text-3xl md:text-4xl font-extrabold tracking-tighter uppercase">
+                Charles To
+            </h1>
+            <p class="text-xs md:text-sm font-medium tracking-[0.25em] uppercase mt-1 text-gray-500">
+                Architecture Portfolio
+            </p>
+        </div>
+        
+        <div class="mt-6 md:mt-0 text-left md:text-right text-xs md:text-sm font-semibold uppercase tracking-widest flex flex-col space-y-2 w-full md:w-auto">
+            <a href="mailto:charleswrtsy@gmail.com" class="hover:bg-black hover:text-white transition-colors duration-200 px-2 py-1 -mx-2 inline-block w-max md:w-auto md:ml-auto">
+                charleswrtsy@gmail.com
+            </a>
+            <a href="tel:+85251616760" class="hover:bg-black hover:text-white transition-colors duration-200 px-2 py-1 -mx-2 inline-block w-max md:w-auto md:ml-auto">
+                +852 51616760
+            </a>
+            
+            <!-- Navigation Toggles -->
+            <div class="mt-4 flex flex-row space-x-2 md:ml-auto w-full md:w-auto justify-start md:justify-end">
+                <button id="nav-portfolio" onclick="switchPDF('portfolio.pdf', 'nav-portfolio')" class="bg-black text-white px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none">
+                    Main Portfolio
+                </button>
+                <button id="nav-thesis" onclick="switchPDF('thesis.pdf', 'nav-thesis')" class="bg-white text-black hover:bg-gray-100 px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none">
+                    Thesis Project
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content - PDF Viewer Area -->
+    <main class="flex-grow flex flex-col bg-[#525659] relative overflow-hidden">
+        
+        <!-- Mobile Warning & Direct Link (Visible only on small screens) -->
+        <div class="md:hidden bg-yellow-100 text-yellow-900 text-xs text-center p-3 z-30 shrink-0 border-b border-yellow-200 flex justify-between items-center">
+            <span>Having trouble viewing?</span>
+            <a id="mobile-pdf-link" href="portfolio.pdf" target="_blank" rel="noopener noreferrer" class="bg-black text-white px-3 py-1 font-bold uppercase tracking-wider rounded-sm">
+                Open PDF
+            </a>
+        </div>
+
+        <div id="pdf-container" class="w-full flex-grow relative flex items-center justify-center scroll-touch overflow-y-auto">
+            <iframe 
+                id="pdf-viewer"
+                src="portfolio.pdf#view=Fit&toolbar=0&navpanes=0&scrollbar=0" 
+                class="absolute top-0 left-0 w-full h-full border-none z-10 bg-[#525659]"
+                title="Charles To - Architecture Portfolio"
+            ></iframe>
+        </div>
+    </main>
+
+    <!-- Script to handle PDF switching -->
+    <script>
+        function switchPDF(pdfFile, activeBtnId) {
+            // 1. Update the Iframe
+            const container = document.getElementById('pdf-container');
+            container.innerHTML = '<iframe id="pdf-viewer" src="' + pdfFile + '#view=Fit&toolbar=0&navpanes=0&scrollbar=0" class="absolute top-0 left-0 w-full h-full border-none z-10 bg-[#525659]" title="Charles To - Portfolio"></iframe>';
+            
+            // 2. Update the Mobile Direct Link
+            document.getElementById('mobile-pdf-link').href = pdfFile;
+
+            // 3. Define the styling for active (black) and inactive (white) buttons
+            const activeClass = "bg-black text-white px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none";
+            const inactiveClass = "bg-white text-black hover:bg-gray-100 px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none";
+            
+            // 4. Reset both buttons to the inactive styling
+            document.getElementById('nav-portfolio').className = inactiveClass;
+            document.getElementById('nav-thesis').className = inactiveClass;
+            
+            // 5. Apply the active styling to the button that was just clicked
+            document.getElementById(activeBtnId).className = activeClass;
+        }
+    </script>
+</body>
+</html>
