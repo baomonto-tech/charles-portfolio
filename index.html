@@ -70,29 +70,15 @@
         </div>
 
         <div id="pdf-container" class="w-full flex-grow relative flex items-center justify-center scroll-touch overflow-y-auto z-10">
-            
+            <!-- Added opacity-0 and transition for a smooth fade-in effect -->
             <iframe 
                 id="pdf-viewer"
-                src="portfolio.pdf#view=Fit&toolbar=0&navpanes=0&page=1" 
+                src="portfolio.pdf#view=Fit&toolbar=0&navpanes=0" 
                 class="absolute top-0 left-0 w-full h-full border-none bg-[#525659] transition-opacity duration-500 opacity-0"
                 title="Charles To - Architecture Portfolio"
                 onload="this.classList.remove('opacity-0'); this.focus();"
             ></iframe>
             
-            <!-- Previous Page Button -->
-            <button onclick="changePage('prev')" title="Previous Page" class="absolute left-2 md:left-6 top-1/2 transform -translate-y-1/2 z-30 bg-white/90 hover:bg-black text-black hover:text-white p-1 shadow-sm border border-black transition-colors rounded-sm flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-            </button>
-            
-            <!-- Next Page Button -->
-            <button onclick="changePage('next')" title="Next Page" class="absolute right-2 md:right-6 top-1/2 transform -translate-y-1/2 z-30 bg-white/90 hover:bg-black text-black hover:text-white p-1 shadow-sm border border-black transition-colors rounded-sm flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-            </button>
-
             <!-- Floating Fullscreen Button -->
             <a id="floating-fullscreen-link" href="portfolio.pdf" target="_blank" rel="noopener noreferrer" title="Read fullscreen in new tab" class="hidden md:flex absolute bottom-6 right-6 z-30 bg-black text-white p-3 shadow-lg hover:bg-gray-800 transition-transform hover:scale-105 items-center justify-center border border-black rounded-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -104,26 +90,18 @@
 
     <!-- Script to handle PDF switching and Loading Effects -->
     <script>
-        // Track the current document state for the Next/Prev buttons
-        let currentActivePdf = 'portfolio.pdf';
-        let currentCustomParams = '#view=Fit&toolbar=0&navpanes=0';
-        let currentPage = 1;
-
         function switchPDF(pdfFile, activeBtnId, customParams = '#view=Fit&toolbar=0&navpanes=0') {
             const iframe = document.getElementById('pdf-viewer');
-            
-            // Update tracking state
-            currentActivePdf = pdfFile;
-            currentCustomParams = customParams;
-            currentPage = 1; // Reset to page 1 on new document
             
             // 1. Fade OUT the current PDF to reveal the loading spinner behind it
             iframe.classList.add('opacity-0');
             
             // 2. Wait a split second for the fade-out to finish, then swap the file
             setTimeout(() => {
-                iframe.src = currentActivePdf + currentCustomParams + '&page=' + currentPage;
+                iframe.src = pdfFile + customParams;
             }, 300); // 300ms delay matches our CSS transition-opacity duration
+            
+            // (Note: The iframe's own "onload" event will automatically fade it back IN once the new file is ready!)
             
             // 3. Update the Mobile and Desktop Direct Links
             document.getElementById('mobile-pdf-link').href = pdfFile;
@@ -139,23 +117,6 @@
             
             // 6. Apply the active styling to the button that was just clicked
             document.getElementById(activeBtnId).className = activeClass;
-        }
-
-        // Custom function to handle Next/Previous buttons
-        function changePage(direction) {
-            if (direction === 'next') {
-                currentPage++;
-            } else if (direction === 'prev') {
-                if (currentPage > 1) {
-                    currentPage--;
-                } else {
-                    return; // Stop if already on page 1
-                }
-            }
-            
-            const iframe = document.getElementById('pdf-viewer');
-            // Update the iframe URL to force the PDF to jump to the new page
-            iframe.src = currentActivePdf + currentCustomParams + '&page=' + currentPage;
         }
 
         // Global Keyboard Listener for PDF Navigation
