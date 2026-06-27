@@ -40,12 +40,12 @@
                 +852 51616760
             </a>
             
-            <!-- Navigation Toggles -->
+            <!-- Navigation Toggles & View PDF -->
             <div class="mt-4 flex flex-row space-x-2 md:ml-auto w-full md:w-auto justify-start md:justify-end">
-                <button id="nav-portfolio" onclick="switchPDF('portfolio.pdf', 'nav-portfolio', '#view=Fit&toolbar=0&navpanes=0&scrollbar=0')" class="bg-black text-white px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none">
+                <button id="nav-portfolio" onclick="switchPDF('portfolio.pdf', 'nav-portfolio', '#toolbar=0&navpanes=0')" class="bg-black text-white px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none">
                     Main Portfolio
                 </button>
-                <button id="nav-thesis" onclick="switchPDF('thesis.pdf', 'nav-thesis', '#view=FitH&pageLayout=TwoColumnRight&toolbar=0&navpanes=0&scrollbar=0')" class="bg-white text-black hover:bg-gray-100 px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none">
+                <button id="nav-thesis" onclick="switchPDF('thesis.pdf', 'nav-thesis', '#pageLayout=TwoColumnRight&toolbar=0&navpanes=0')" class="bg-white text-black hover:bg-gray-100 px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none">
                     Thesis Project
                 </button>
             </div>
@@ -66,7 +66,7 @@
         <div id="pdf-container" class="w-full flex-grow relative flex items-center justify-center scroll-touch overflow-y-auto">
             <iframe 
                 id="pdf-viewer"
-                src="portfolio.pdf#view=Fit&toolbar=0&navpanes=0&scrollbar=0" 
+                src="portfolio.pdf#toolbar=0&navpanes=0" 
                 class="absolute top-0 left-0 w-full h-full border-none z-10 bg-[#525659]"
                 title="Charles To - Architecture Portfolio"
             ></iframe>
@@ -75,7 +75,7 @@
 
     <!-- Script to handle PDF switching -->
     <script>
-        function switchPDF(pdfFile, activeBtnId, customParams = '#view=Fit&toolbar=0&navpanes=0&scrollbar=0') {
+        function switchPDF(pdfFile, activeBtnId, customParams = '#toolbar=0&navpanes=0') {
             // 1. Update the Iframe with custom parameters for different layouts
             const container = document.getElementById('pdf-container');
             container.innerHTML = '<iframe id="pdf-viewer" src="' + pdfFile + customParams + '" class="absolute top-0 left-0 w-full h-full border-none z-10 bg-[#525659]" title="Charles To - Portfolio"></iframe>';
