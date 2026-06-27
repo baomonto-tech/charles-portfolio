@@ -40,7 +40,7 @@
                 +852 51616760
             </a>
             
-            <!-- Navigation Toggles -->
+            <!-- Navigation Toggles & View PDF -->
             <div class="mt-4 flex flex-row space-x-2 md:ml-auto w-full md:w-auto justify-start md:justify-end">
                 <button id="nav-portfolio" onclick="switchPDF('portfolio.pdf', 'nav-portfolio', '#view=Fit&toolbar=0&navpanes=0&scrollbar=0')" class="bg-black text-white px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none">
                     Main Portfolio
@@ -48,6 +48,10 @@
                 <button id="nav-thesis" onclick="switchPDF('thesis.pdf', 'nav-thesis', '#view=FitH&pageLayout=TwoColumnRight&toolbar=0&navpanes=0&scrollbar=0')" class="bg-white text-black hover:bg-gray-100 px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none">
                     Thesis Project
                 </button>
+                <!-- Desktop Direct Link (Hidden on mobile, visible on medium+ screens) -->
+                <a id="desktop-pdf-link" href="portfolio.pdf" target="_blank" rel="noopener noreferrer" title="View PDF in new tab" class="hidden md:flex bg-white text-black hover:bg-gray-100 px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer items-center flex-none">
+                    View PDF ↗
+                </a>
             </div>
         </div>
     </header>
@@ -80,8 +84,9 @@
             const container = document.getElementById('pdf-container');
             container.innerHTML = '<iframe id="pdf-viewer" src="' + pdfFile + customParams + '" class="absolute top-0 left-0 w-full h-full border-none z-10 bg-[#525659]" title="Charles To - Portfolio"></iframe>';
             
-            // 2. Update the Mobile Direct Link
+            // 2. Update the Mobile and Desktop Direct Links
             document.getElementById('mobile-pdf-link').href = pdfFile;
+            document.getElementById('desktop-pdf-link').href = pdfFile;
 
             // 3. Define the styling for active (black) and inactive (white) buttons
             const activeClass = "bg-black text-white px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none";
