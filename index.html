@@ -21,21 +21,18 @@
 <!-- Changed to h-[100dvh] for better mobile browser support with address bars -->
 <body class="h-[100dvh] bg-white text-black flex flex-col m-0 overflow-hidden">
 
-    <!-- Header Section (Padding and text sizes reduced for sleeker desktop view) -->
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-center p-5 md:py-4 md:px-6 border-b-2 border-black bg-white z-20 shrink-0">
+    <!-- Header Section -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center p-6 border-b-2 border-black bg-white z-20 shrink-0">
         <div>
-            <!-- Reduced from 4xl to 3xl for web -->
-            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tighter uppercase">
+            <h1 class="text-3xl md:text-4xl font-extrabold tracking-tighter uppercase">
                 Charles To
             </h1>
-            <!-- Reduced to xs for web -->
-            <p class="text-[10px] md:text-xs font-medium tracking-[0.25em] uppercase mt-1 text-gray-500">
+            <p class="text-xs md:text-sm font-medium tracking-[0.25em] uppercase mt-1 text-gray-500">
                 Architecture Portfolio
             </p>
         </div>
         
-        <!-- Reduced text size to xs for web -->
-        <div class="mt-4 md:mt-0 text-left md:text-right text-[10px] md:text-xs font-semibold uppercase tracking-widest flex flex-col space-y-1 md:space-y-1.5 w-full md:w-auto">
+        <div class="mt-6 md:mt-0 text-left md:text-right text-xs md:text-sm font-semibold uppercase tracking-widest flex flex-col space-y-2 w-full md:w-auto">
             <a href="mailto:charleswrtsy@gmail.com" class="hover:bg-black hover:text-white transition-colors duration-200 px-2 py-1 -mx-2 inline-block w-max md:w-auto md:ml-auto">
                 charleswrtsy@gmail.com
             </a>
@@ -43,20 +40,13 @@
                 +852 51616760
             </a>
             
-            <!-- Navigation Toggles (Added text-xs to buttons) -->
-            <div class="mt-3 flex flex-row space-x-2 md:ml-auto w-full md:w-auto justify-start md:justify-end">
-                <button id="nav-portfolio" onclick="switchPDF('portfolio.pdf', 'nav-portfolio', '#view=Fit&toolbar=0&navpanes=0')" class="bg-black text-white text-xs px-3 py-1.5 md:px-4 md:py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none">
+            <!-- Navigation Toggles -->
+            <div class="mt-4 flex flex-row space-x-2 md:ml-auto w-full md:w-auto justify-start md:justify-end">
+                <button id="nav-portfolio" onclick="switchPDF('portfolio.pdf', 'nav-portfolio', '#view=Fit&toolbar=0&navpanes=0')" class="bg-black text-white px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none">
                     Main Portfolio
                 </button>
-                <button id="nav-thesis" onclick="switchPDF('thesis.pdf', 'nav-thesis', '#view=Fit&pageLayout=TwoColumnRight&toolbar=0&navpanes=0')" class="bg-white text-black hover:bg-gray-100 text-xs px-3 py-1.5 md:px-4 md:py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none">
+                <button id="nav-thesis" onclick="switchPDF('thesis.pdf', 'nav-thesis', '#view=Fit&pageLayout=TwoColumnRight&toolbar=0&navpanes=0')" class="bg-white text-black hover:bg-gray-100 px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none">
                     Thesis Project
-                </button>
-                
-                <!-- Fit to Size / Fit to Width Toggle Button -->
-                <button id="nav-fit" onclick="toggleFit()" class="hidden md:flex bg-white text-black hover:bg-gray-100 px-3 py-1.5 md:px-3 md:py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer items-center justify-center" title="Toggle Fit to Size / Fit to Width">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
-                    </svg>
                 </button>
             </div>
         </div>
@@ -65,7 +55,7 @@
     <!-- Main Content - PDF Viewer Area -->
     <main class="flex-grow flex flex-col bg-[#525659] relative overflow-hidden">
         
-        <!-- Mobile Warning & Direct Link -->
+        <!-- Mobile Warning & Direct Link (Visible only on small screens) -->
         <div class="md:hidden bg-white text-black text-xs p-3 z-30 shrink-0 border-b-2 border-black flex justify-between items-center">
             <span class="font-semibold uppercase tracking-widest text-gray-500">On mobile phone?</span>
             <a id="mobile-pdf-link" href="portfolio.pdf" target="_blank" rel="noopener noreferrer" class="bg-black text-white px-4 py-2 font-bold uppercase tracking-wider hover:bg-gray-800 transition-colors shadow-sm">
@@ -73,13 +63,14 @@
             </a>
         </div>
 
-        <!-- Sleek Loading Spinner -->
+        <!-- NEW: Sleek Loading Spinner (Sits behind the PDF) -->
         <div id="loading-indicator" class="absolute inset-0 flex flex-col items-center justify-center z-0">
             <div class="w-10 h-10 border-2 border-[#666] border-t-white rounded-full animate-spin"></div>
             <span class="text-white mt-4 text-xs font-semibold tracking-[0.2em] uppercase">Loading Document</span>
         </div>
 
         <div id="pdf-container" class="w-full flex-grow relative flex items-center justify-center scroll-touch overflow-y-auto z-10">
+            <!-- Added opacity-0 and transition for a smooth fade-in effect -->
             <iframe 
                 id="pdf-viewer"
                 src="portfolio.pdf#view=Fit&toolbar=0&navpanes=0" 
@@ -102,48 +93,33 @@
         function switchPDF(pdfFile, activeBtnId, customParams = '#view=Fit&toolbar=0&navpanes=0') {
             const iframe = document.getElementById('pdf-viewer');
             
+            // 1. Fade OUT the current PDF to reveal the loading spinner behind it
             iframe.classList.add('opacity-0');
             
+            // 2. Wait a split second for the fade-out to finish, then swap the file
             setTimeout(() => {
                 iframe.src = pdfFile + customParams;
-            }, 300); 
+            }, 300); // 300ms delay matches our CSS transition-opacity duration
             
+            // (Note: The iframe's own "onload" event will automatically fade it back IN once the new file is ready!)
+            
+            // 3. Update the Mobile and Desktop Direct Links
             document.getElementById('mobile-pdf-link').href = pdfFile;
             document.getElementById('floating-fullscreen-link').href = pdfFile;
 
-            // Updated classes to include text-xs
-            const activeClass = "bg-black text-white text-xs px-3 py-1.5 md:px-4 md:py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none";
-            const inactiveClass = "bg-white text-black hover:bg-gray-100 text-xs px-3 py-1.5 md:px-4 md:py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none";
+            // 4. Define the styling for active (black) and inactive (white) buttons
+            const activeClass = "bg-black text-white px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none";
+            const inactiveClass = "bg-white text-black hover:bg-gray-100 px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none";
             
+            // 5. Reset both buttons to the inactive styling
             document.getElementById('nav-portfolio').className = inactiveClass;
             document.getElementById('nav-thesis').className = inactiveClass;
             
+            // 6. Apply the active styling to the button that was just clicked
             document.getElementById(activeBtnId).className = activeClass;
-            
-            isFitWidth = false; 
         }
 
-        let isFitWidth = false;
-        function toggleFit() {
-            const iframe = document.getElementById('pdf-viewer');
-            let currentSrc = iframe.src;
-            
-            isFitWidth = !isFitWidth;
-            const newView = isFitWidth ? 'view=FitH' : 'view=Fit';
-            
-            if(currentSrc.includes('view=')) {
-                currentSrc = currentSrc.replace(/view=[^&]+/, newView);
-            } else {
-                const separator = currentSrc.includes('#') ? '&' : '#';
-                currentSrc += separator + newView;
-            }
-            
-            iframe.classList.add('opacity-0');
-            setTimeout(() => {
-                iframe.src = currentSrc;
-            }, 150);
-        }
-
+        // Global Keyboard Listener for PDF Navigation
         window.addEventListener('keydown', function(e) {
             const iframe = document.getElementById('pdf-viewer');
             const navKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown', ' '];
@@ -157,6 +133,3 @@
     </script>
 </body>
 </html>
-```eof
-
-I've made sure to adjust both the text sizes and the padding appropriately so the header doesn't feel overly bulky on large screens while still maintaining its crisp layout. How does the proportion feel to you now?
