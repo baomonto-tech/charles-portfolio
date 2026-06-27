@@ -36,6 +36,9 @@
             <a href="mailto:charleswrtsy@gmail.com" class="hover:bg-black hover:text-white transition-colors duration-200 px-2 py-1 -mx-2 inline-block w-max md:w-auto md:ml-auto">
                 charleswrtsy@gmail.com
             </a>
+            <a href="tel:+85251616760" class="hover:bg-black hover:text-white transition-colors duration-200 px-2 py-1 -mx-2 inline-block w-max md:w-auto md:ml-auto">
+                +852 51616760
+            </a>
             
             <!-- Navigation Toggles -->
             <div class="mt-4 flex flex-row space-x-2 md:ml-auto w-full md:w-auto justify-start md:justify-end">
@@ -60,16 +63,23 @@
             </a>
         </div>
 
-        <div id="pdf-container" class="w-full flex-grow relative flex items-center justify-center scroll-touch overflow-y-auto">
+        <!-- NEW: Sleek Loading Spinner (Sits behind the PDF) -->
+        <div id="loading-indicator" class="absolute inset-0 flex flex-col items-center justify-center z-0">
+            <div class="w-10 h-10 border-2 border-[#666] border-t-white rounded-full animate-spin"></div>
+            <span class="text-white mt-4 text-xs font-semibold tracking-[0.2em] uppercase">Loading Document</span>
+        </div>
+
+        <div id="pdf-container" class="w-full flex-grow relative flex items-center justify-center scroll-touch overflow-y-auto z-10">
+            <!-- Added opacity-0 and transition for a smooth fade-in effect -->
             <iframe 
                 id="pdf-viewer"
                 src="portfolio.pdf#view=Fit&toolbar=0&navpanes=0" 
-                class="absolute top-0 left-0 w-full h-full border-none z-10 bg-[#525659]"
+                class="absolute top-0 left-0 w-full h-full border-none bg-[#525659] transition-opacity duration-500 opacity-0"
                 title="Charles To - Architecture Portfolio"
-                onload="this.focus()"
+                onload="this.classList.remove('opacity-0'); this.focus();"
             ></iframe>
             
-            <!-- Floating Fullscreen Button (Desktop Only) -->
+            <!-- Floating Fullscreen Button -->
             <a id="floating-fullscreen-link" href="portfolio.pdf" target="_blank" rel="noopener noreferrer" title="Read fullscreen in new tab" class="hidden md:flex absolute bottom-6 right-6 z-30 bg-black text-white p-3 shadow-lg hover:bg-gray-800 transition-transform hover:scale-105 items-center justify-center border border-black rounded-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
@@ -78,50 +88,48 @@
         </div>
     </main>
 
-    <!-- Script to handle PDF switching -->
+    <!-- Script to handle PDF switching and Loading Effects -->
     <script>
         function switchPDF(pdfFile, activeBtnId, customParams = '#view=Fit&toolbar=0&navpanes=0') {
-            // 1. Update the Iframe with custom parameters for different layouts (Added onload focus)
-            const container = document.getElementById('pdf-container');
-            container.innerHTML = '<iframe id="pdf-viewer" src="' + pdfFile + customParams + '" class="absolute top-0 left-0 w-full h-full border-none z-10 bg-[#525659]" title="Charles To - Portfolio" onload="this.focus()"></iframe>';
+            const iframe = document.getElementById('pdf-viewer');
             
-            // 2. Update the Mobile and Desktop Direct Links
+            // 1. Fade OUT the current PDF to reveal the loading spinner behind it
+            iframe.classList.add('opacity-0');
+            
+            // 2. Wait a split second for the fade-out to finish, then swap the file
+            setTimeout(() => {
+                iframe.src = pdfFile + customParams;
+            }, 300); // 300ms delay matches our CSS transition-opacity duration
+            
+            // (Note: The iframe's own "onload" event will automatically fade it back IN once the new file is ready!)
+            
+            // 3. Update the Mobile and Desktop Direct Links
             document.getElementById('mobile-pdf-link').href = pdfFile;
             document.getElementById('floating-fullscreen-link').href = pdfFile;
 
-            // 3. Define the styling for active (black) and inactive (white) buttons
+            // 4. Define the styling for active (black) and inactive (white) buttons
             const activeClass = "bg-black text-white px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none";
             const inactiveClass = "bg-white text-black hover:bg-gray-100 px-4 py-2 border border-black transition-colors duration-200 shadow-sm cursor-pointer flex-1 md:flex-none";
             
-            // 4. Reset both buttons to the inactive styling
+            // 5. Reset both buttons to the inactive styling
             document.getElementById('nav-portfolio').className = inactiveClass;
             document.getElementById('nav-thesis').className = inactiveClass;
             
-            // 5. Apply the active styling to the button that was just clicked
+            // 6. Apply the active styling to the button that was just clicked
             document.getElementById(activeBtnId).className = activeClass;
         }
 
-        // 6. Global Keyboard Listener for PDF Navigation
-        // If the user clicks the header (losing focus on the PDF) and tries to use the keyboard, 
-        // this script instantly forces the focus back onto the PDF iframe so it scrolls natively!
+        // Global Keyboard Listener for PDF Navigation
         window.addEventListener('keydown', function(e) {
             const iframe = document.getElementById('pdf-viewer');
-            // Check if they pressed a navigation key
             const navKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown', ' '];
             
             if (iframe && navKeys.includes(e.key)) {
-                // If the iframe doesn't currently have focus, give it focus
                 if (document.activeElement !== iframe) {
                     iframe.focus();
                 }
             }
         });
-        
-        // Initial load focus
-        window.onload = function() {
-            const iframe = document.getElementById('pdf-viewer');
-            if (iframe) iframe.focus();
-        };
     </script>
 </body>
 </html>
